@@ -1,0 +1,155 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+/// Single-row configuration for this club instance.
+model Settings {
+  id                Int      @id @default(1)
+  clubName          String   @map("club_name")
+  logoUrl           String?  @map("logo_url")
+  midtransServerKey String?  @map("midtrans_server_key")
+  midtransClientKey String?  @map("midtrans_client_key")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@map("settings")
+}
+
+/// Users/members of this club.
+model User {
+  id                 String              @id @default(uuid())
+  name               String
+  email              String              @unique
+  passwordHash       String              @map("password_hash")
+  role               Role                @default(candidate)
+  phone              String?
+  currentBeltId      Int?                @map("current_belt_id")
+  createdAt          DateTime            @default(now()) @map("created_at")
+  updatedAt          DateTime            @updatedAt @map("updated_at")
+  birthDate          DateTime?           @map("birth_date")
+  birthPlace         String?             @map("birth_place")
+  gender             String?
+  profileImage       String?             @map("profile_image_url")
+  status             String              @default("active")
+  resetToken         String?             @map("reset_token")
+  resetTokenExpiry   DateTime?           @map("reset_token_expiry")
+  eventRegistrations EventRegistration[]
+  invoices           Invoice[]
+  belt               Belt?               @relation(fields: [currentBeltId], references: [id])
+
+  @@index([currentBeltId], map: "users_current_belt_id_fkey")
+  @@map("users")
+}
+
+/// Master data for belt ranks.
+model Belt {
+  id         Int    @id @default(autoincrement())
+  name       String
+  color      String
+  levelOrder Int    @map("level_order")
+  users      User[]
+
+  @@map("belts")
+}
+
+/// Invoices for member payments.
+model Invoice {
+  id                String             @id @default(uuid())
+  userId            String             @map("user_id")
+  title             String
+  amount            Decimal            @db.Decimal(12, 2)
+  status            InvoiceStatus      @default(unpaid)
+  paymentUrl        String?            @map("payment_url") @db.Text
+  dueDate           DateTime           @map("due_date")
+  paidAt            DateTime?          @map("paid_at")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  paymentMethod     String             @default("manual") @map("payment_method")
+  paymentProof      String?            @map("payment_proof") @db.Text
+  eventRegistration EventRegistration?
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("invoices")
+}
+
+/// Events organized by this club.
+model Event {
+  id            String              @id @default(uuid())
+  title         String
+  type          EventType
+  eventDate     DateTime            @map("event_date")
+  createdAt     DateTime            @default(now()) @map("created_at")
+  updatedAt     DateTime            @updatedAt @map("updated_at")
+  description   String?             @db.Text
+  image         String?             @map("image_url")
+  price         Decimal?            @db.Decimal(12, 2)
+  location      String?
+  mapUrl        String?             @map("map_url") @db.Text
+  registrations EventRegistration[]
+
+  @@map("events")
+}
+
+/// Registrations for events by members.
+model EventRegistration {
+  id                  String    @id @default(uuid())
+  userId              String    @map("user_id")
+  eventId             String    @map("event_id")
+  invoiceId           String?   @unique @map("invoice_id")
+  status              String    @default("pending")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  age                 Int?
+  birthDate           DateTime? @map("birth_date")
+  birthPlace          String?   @map("birth_place")
+  gender              String?
+  participantName     String?   @map("participant_name")
+  weight              Float?
+  competitionCategory String?   @map("competition_category")
+  levelCategory       String?   @map("level_category")
+  event               Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  invoice             Invoice?  @relation(fields: [invoiceId], references: [id])
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
+  @@index([eventId], map: "event_registrations_event_id_fkey")
+  @@map("event_registrations")
+}
+
+/// Gallery items for achievements/highlights.
+model Gallery {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?  @db.Text
+  image       String
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("gallery")
+}
+
+enum Role {
+  superadmin
+  club_admin
+  member_reguler
+  member_private
+  candidate
+}
+
+enum InvoiceStatus {
+  unpaid
+  pending_verification
+  paid
+  expired
+  failed
+}
+
+enum EventType {
+  championship
+  test
+  gathering
+}
