@@ -4,7 +4,6 @@ const { PrismaClient } = require("@prisma/client");
 const globalForPrisma = globalThis;
 
 if (!globalForPrisma.prisma) {
-  console.log("DEBUG: Initializing Prisma Client v1.0.1 (Classic Mode)");
   globalForPrisma.prisma = new PrismaClient({
     log: ["error"],
   });
