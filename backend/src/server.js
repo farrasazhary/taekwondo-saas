@@ -123,7 +123,10 @@ const startServer = async () => {
   }
 };
 
-startServer();
+// Only run the server locally. Vercel will process requests through the exported app directly.
+if (!process.env.VERCEL) {
+  startServer();
+}
 
 // Graceful shutdown
 process.on("SIGINT", async () => {
@@ -136,3 +139,5 @@ process.on("SIGTERM", async () => {
   await prisma.$disconnect();
   process.exit(0);
 });
+
+module.exports = app;

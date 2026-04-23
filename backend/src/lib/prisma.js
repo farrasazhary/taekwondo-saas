@@ -11,6 +11,7 @@ if (!globalForPrisma.prisma) {
     user: process.env.DB_USER || "root",
     password: process.env.DB_PASSWORD || "",
     database: process.env.DB_NAME || "taekwondo_saas",
+    ssl: { rejectUnauthorized: true }
   });
 
   globalForPrisma.prisma = new PrismaClient({

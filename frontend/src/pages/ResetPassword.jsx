@@ -41,7 +41,7 @@ export default function ResetPassword() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#0b1120] px-6 py-12">
       <div className="w-full max-w-md animate-fade-in">
         <div className="bg-white dark:bg-[#1c2434] rounded-3xl shadow-xl border border-gray-100 dark:border-[#2a3447] p-8 md:p-10">
-          
+
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 text-center">Atur Ulang Kata Sandi</h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm mb-8 text-center">
             Keamanan akun Anda adalah prioritas kami. Silakan masukkan kata sandi baru Anda di bawah ini.
