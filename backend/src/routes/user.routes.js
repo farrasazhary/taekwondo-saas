@@ -24,10 +24,11 @@ router.get("/stats", authorize("club_admin", "superadmin", "member_reguler", "me
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const [total, privateCount, regularCount, newRegistrations] = await Promise.all([
+    const [total, privateCount, regularCount, candidateCount, newRegistrations] = await Promise.all([
       prisma.user.count(),
       prisma.user.count({ where: { role: "member_private" } }),
       prisma.user.count({ where: { role: "member_reguler" } }),
+      prisma.user.count({ where: { role: "candidate" } }),
       prisma.user.count({ where: { createdAt: { gte: thirtyDaysAgo } } }),
     ]);
 
@@ -37,6 +38,7 @@ router.get("/stats", authorize("club_admin", "superadmin", "member_reguler", "me
         total,
         privateCount,
         regularCount,
+        candidateCount,
         newRegistrations,
       },
     });

@@ -272,7 +272,7 @@ export default function Dashboard() {
               </div>
               <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Jumlah Kandidat</p>
             </div>
-            <p className="text-3xl font-black text-gray-900 dark:text-white leading-none">{adminStats.newRegistrations}</p>
+            <p className="text-3xl font-black text-gray-900 dark:text-white leading-none">{adminStats.candidateCount}</p>
           </div>
         </div>
       )}
