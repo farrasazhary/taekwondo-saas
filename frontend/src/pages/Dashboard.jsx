@@ -270,7 +270,7 @@ export default function Dashboard() {
               <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/10 flex items-center justify-center">
                 <Clock className="w-5 h-5 text-blue-600" />
               </div>
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Baru (30 Hari)</p>
+              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Jumlah Kandidat</p>
             </div>
             <p className="text-3xl font-black text-gray-900 dark:text-white leading-none">{adminStats.newRegistrations}</p>
           </div>
