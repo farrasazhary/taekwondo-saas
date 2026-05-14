@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useAuth } from '../context/AuthContext';
 import { getInvoices, createInvoice, deleteInvoice, verifyPayment } from '../api/invoices';
 import { getUsers } from '../api/users';
+import { getImageUrl } from '../utils/imageHelper';
 import { Plus, Trash2, X, AlertCircle, Filter, Download, CreditCard, CheckCircle, FileWarning, Phone, Mail, Clock } from 'lucide-react';
 import Skeleton, { TableSkeleton, CardSkeleton } from '../components/Skeleton';
 
@@ -384,10 +385,10 @@ export default function Billing() {
                  {verifyModal.invoice.paymentProof ? (
                    <div className="rounded-2xl overflow-hidden border-2 border-gray-100 dark:border-[#0b1120] shadow-sm bg-gray-50 dark:bg-[#0b1120]">
                      <img 
-                       src={`http://localhost:5000/uploads/proofs/${verifyModal.invoice.paymentProof}`} 
+                       src={getImageUrl(verifyModal.invoice.paymentProof, 'proofs')} 
                        alt="Bukti Transfer" 
                        className="w-full h-auto object-contain max-h-[40vh] mx-auto" 
-                       onClick={() => window.open(`http://localhost:5000/uploads/proofs/${verifyModal.invoice.paymentProof}`, '_blank')}
+                       onClick={() => window.open(getImageUrl(verifyModal.invoice.paymentProof, 'proofs'), '_blank')}
                      />
                      <p className="text-[10px] text-gray-400 text-center py-2 bg-white/50 dark:bg-black/20 italic">Klik gambar untuk melihat ukuran penuh</p>
                    </div>

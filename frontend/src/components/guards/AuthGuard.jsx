@@ -27,14 +27,14 @@ export function GuestGuard({ children }) {
     );
   }
 
-  if (user) return <Navigate to="/" replace />;
+  if (user) return <Navigate to="/dashboard" replace />;
   return children;
 }
 
 export function AdminGuard({ children }) {
   const { user } = useAuth();
   if (user?.role !== 'club_admin' && user?.role !== 'superadmin') {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
   return children;
 }

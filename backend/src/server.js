@@ -93,6 +93,7 @@ app.use("/api/webhook",  require("./routes/webhook.routes"));
 app.use("/api/membership", require("./routes/membership.routes"));
 app.use("/api/gallery",    require("./routes/gallery.routes"));
 app.use("/api/notifications", require("./routes/notification.routes"));
+app.use("/api/instructors",    require("./routes/instructor.routes"));
 
 // 404 handler for unmatched routes
 app.use((_req, res) => {

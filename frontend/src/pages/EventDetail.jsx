@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getEventPublic, registerEvent, getMyRegistrations } from '../api/events';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
+import { getImageUrl } from '../utils/imageHelper';
 import { CalendarDays, Clock, MapPin, ArrowLeft, Trophy, GraduationCap, X, UserCircle, Scale, Tag, UserCheck } from 'lucide-react';
 
 const typeLabel = { championship: 'Kejuaraan', test: 'Ujian Kenaikan Sabuk', gathering: 'Latihan / Kumpul' };
@@ -151,7 +152,7 @@ export default function EventDetail() {
       {/* Hero Banner */}
       <section className="relative w-full h-[300px] md:h-[400px] overflow-hidden">
         {event.image ? (
-          <img src={`http://localhost:5000/uploads/events/${event.image}`} alt={event.title} className="w-full h-full object-cover" />
+          <img src={getImageUrl(event.image, 'events')} alt={event.title} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full bg-gray-900 flex items-center justify-center">
              <CalendarDays className="w-32 h-32 text-gray-800" />

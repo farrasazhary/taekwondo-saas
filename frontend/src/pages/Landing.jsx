@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, Users, Award, ShieldCheck, Clock, MapPin, Phone, Mail, Globe, Video, CalendarDays, Trophy, Image } from 'lucide-react';
+import { ChevronRight, Users, Award, ShieldCheck, Clock, MapPin, Phone, Mail, Globe, Video, CalendarDays, Trophy, Image, LayoutGrid } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
+import { getImageUrl } from '../utils/imageHelper';
 
 function GallerySection() {
   const [items, setItems] = useState([]);
@@ -56,7 +58,7 @@ function GallerySection() {
             <div key={`${item.id}-${i}`} className="w-[320px] md:w-[380px] shrink-0 group">
               <div className="relative h-[260px] md:h-[300px] rounded-2xl overflow-hidden shadow-xl">
                 <img
-                  src={`http://localhost:5000/uploads/gallery/${item.image}`}
+                  src={getImageUrl(item.image, 'gallery')}
                   alt={item.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
@@ -76,7 +78,49 @@ function GallerySection() {
   );
 }
 
+function InstructorsSection() {
+  const [instructors, setInstructors] = useState([]);
+
+  useEffect(() => {
+    fetch('/api/instructors/public')
+      .then(res => res.json())
+      .then(data => { if (data.success) setInstructors(data.data); })
+      .catch(console.error);
+  }, []);
+
+  if (instructors.length === 0) return null;
+
+  return (
+    <section id="instructors" className="bg-navy-900/30 border-y border-white/5">
+      <div className="max-w-7xl mx-auto px-6 py-20">
+        <div className="mb-10">
+          <p className="text-navy-400 text-sm uppercase tracking-widest mb-2">Master & Instruktur</p>
+          <p className="text-navy-300 text-sm max-w-lg">Dipimpin oleh para praktisi berpengalaman yang bersertifikasi untuk menceritakan nilai-nilai murni Taekwondo.</p>
+        </div>
+        <div className="flex flex-wrap justify-center gap-6">
+          {instructors.map((ins) => (
+            <div key={ins.id} className="text-center group w-[calc(50%-12px)] md:w-[calc(25%-18px)] min-w-[160px]">
+              <div className="w-full aspect-square rounded-2xl bg-navy-800 mb-3 overflow-hidden border border-white/5 group-hover:border-primary-500/30 transition-colors">
+                {ins.image ? (
+                  <img src={getImageUrl(ins.image, 'instructors')} alt={ins.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-b from-navy-700 to-navy-900 flex items-center justify-center">
+                    <ShieldCheck className="w-12 h-12 text-navy-600" />
+                  </div>
+                )}
+              </div>
+              <p className="font-semibold text-white text-sm">{ins.name}</p>
+              <p className="text-navy-400 text-[10px] uppercase tracking-widest mt-0.5">{ins.rank}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function Landing() {
+  const { user } = useAuth();
   const [publicEvents, setPublicEvents] = useState([]);
   const { settings } = useSettings();
 
@@ -101,8 +145,15 @@ export default function Landing() {
             <a href="#footer" className="text-navy-300 hover:text-white transition-colors">Contact</a>
           </div>
           <div className="flex items-center gap-3">
-            {/* <Link to="/login" className="text-sm text-navy-300 hover:text-white transition-colors hidden sm:block">Member Login</Link> */}
-            <Link to="/login" className="px-3 py-1.5 sm:px-4 sm:py-2 bg-primary-600 hover:bg-primary-500 text-white text-xs sm:text-sm font-semibold rounded-lg transition-colors whitespace-nowrap">Daftar / Login</Link>
+            {user ? (
+              <Link to="/dashboard" className="px-3 py-1.5 sm:px-4 sm:py-2 bg-primary-600 hover:bg-primary-500 text-white text-xs sm:text-sm font-semibold rounded-lg transition-all whitespace-nowrap flex items-center gap-2 shadow-lg shadow-primary-600/20">
+                <LayoutGrid className="w-4 h-4" /> DASHBOARD
+              </Link>
+            ) : (
+              <Link to="/login" className="px-3 py-1.5 sm:px-4 sm:py-2 bg-primary-600 hover:bg-primary-500 text-white text-xs sm:text-sm font-semibold rounded-lg transition-colors whitespace-nowrap">
+                Daftar / Login
+              </Link>
+            )}
           </div>
         </div>
       </nav>
@@ -235,15 +286,18 @@ export default function Landing() {
                 <div key={ev.id} className="bg-navy-900/50 border border-white/5 rounded-2xl overflow-hidden hover:border-white/10 transition-all animate-slide-up flex flex-col group">
                   <a href={`/events/${ev.id}`} className="relative h-48 bg-navy-800 overflow-hidden block">
                     {ev.image ? (
-                      <img src={`http://localhost:5000/uploads/events/${ev.image}`} alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                      <img src={getImageUrl(ev.image, 'events')} alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-navy-700">
                         <CalendarDays className="w-16 h-16" />
                       </div>
                     )}
-                    <div className="absolute top-4 left-4">
+                    <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                       <span className="inline-flex items-center justify-center text-center px-3 py-1 bg-primary-600 text-white text-[10px] font-bold uppercase tracking-widest rounded-full shadow-lg leading-tight">
                         {ev.type === 'championship' ? 'Kejuaraan' : ev.type === 'test' ? 'Ujian' : 'Latihan'}
+                      </span>
+                      <span className={`inline-flex items-center px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-widest shadow-lg ${new Date(ev.eventDate) < new Date() ? 'bg-navy-700 text-navy-300' : 'bg-emerald-600 text-white'}`}>
+                        {new Date(ev.eventDate) < new Date() ? 'Selesai' : 'Mendatang'}
                       </span>
                     </div>
                   </a>
@@ -293,27 +347,7 @@ export default function Landing() {
       </section>
 
       {/* Instructors */}
-      <section id="instructors" className="bg-navy-900/30 border-y border-white/5">
-        <div className="max-w-7xl mx-auto px-6 py-20">
-          <div className="mb-10">
-            <p className="text-navy-400 text-sm uppercase tracking-widest mb-2">Master & Instruktur</p>
-            <p className="text-navy-300 text-sm max-w-lg">Dipimpin oleh para praktisi berpengalaman yang bersertifikasi untuk menceritakan nilai-nilai murni Taekwondo.</p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {['Sabeum Nim Aria', 'Sabeum Budi', 'Sabeum Maya', 'Sabeum Ridho'].map((name) => (
-              <div key={name} className="text-center group">
-                <div className="w-full aspect-square rounded-2xl bg-navy-800 mb-3 overflow-hidden">
-                  <div className="w-full h-full bg-gradient-to-b from-navy-700 to-navy-900 flex items-center justify-center">
-                    <ShieldCheck className="w-12 h-12 text-navy-600" />
-                  </div>
-                </div>
-                <p className="font-semibold text-white text-sm">{name}</p>
-                <p className="text-navy-400 text-xs">DAN IV Kukkiwon</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <InstructorsSection />
 
       {/* Footer */}
       <footer id="footer" className="bg-navy-950 border-t border-white/5">

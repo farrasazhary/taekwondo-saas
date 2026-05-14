@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useAuth } from '../context/AuthContext';
 import { getEvents, createEvent, updateEvent, deleteEvent, getMyRegistrations, registerEvent, getEventParticipants } from '../api/events';
+import { getImageUrl } from '../utils/imageHelper';
 import { Plus, Trash2, Edit2, X, AlertCircle, Trophy, GraduationCap, PartyPopper, CalendarDays, Clock, Users, CheckCircle, Search } from 'lucide-react';
 
 const typeIcon = { championship: Trophy, test: GraduationCap, gathering: PartyPopper };
@@ -191,13 +192,16 @@ export default function Events() {
               <div key={ev.id} className="card group overflow-hidden hover:shadow-lg transition-all animate-slide-up rounded-2xl flex flex-col">
                 <a href={`/events/${ev.id}`} className="relative h-40 bg-gray-100 dark:bg-[#0b1120] overflow-hidden block">
                   {ev.image ? (
-                    <img src={`http://localhost:5000/uploads/events/${ev.image}`} alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <img src={getImageUrl(ev.image, 'events')} alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-300"><CalendarDays className="w-12 h-12" /></div>
                   )}
-                  <div className="absolute top-3 left-3 flex gap-2">
+                  <div className="absolute top-3 left-3 flex flex-wrap gap-2">
                     <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-widest ${typeColor[ev.type]}`}>
                       <Icon className="w-3.5 h-3.5" /> {typeLabel[ev.type]}
+                    </span>
+                    <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-widest shadow-sm ${new Date(ev.eventDate) < new Date() ? 'bg-gray-600 text-white' : 'bg-emerald-600 text-white'}`}>
+                      {new Date(ev.eventDate) < new Date() ? 'Selesai' : 'Mendatang'}
                     </span>
                   </div>
                 </a>

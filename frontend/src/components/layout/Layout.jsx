@@ -8,6 +8,7 @@ import { getInvoices } from '../../api/invoices';
 import NotificationDropdown from './NotificationDropdown';
 import { useLocation } from 'react-router-dom';
 import { useEffect, useRef } from 'react';
+import { getImageUrl } from '../../utils/imageHelper';
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -150,7 +151,7 @@ export default function Layout() {
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-navy-800 dark:to-navy-700 p-0.5 shadow-sm transition-transform hover:scale-105 overflow-hidden">
                   {user?.profileImage ? (
                     <img 
-                      src={`http://localhost:5000/uploads/profiles/${user.profileImage}`} 
+                      src={getImageUrl(user.profileImage, 'profiles')} 
                       alt={user.name} 
                       className="w-full h-full object-cover rounded-[10px]"
                     />

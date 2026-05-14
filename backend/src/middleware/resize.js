@@ -5,11 +5,19 @@ const upload = require('./multer');
 
 /**
  * Image processing middleware to compress and convert images to WebP
- * Uses Memory storage from multer, then saves to disk after processing.
+ * If using Cloudinary, this just passes through as Cloudinary handles transformations.
+ * If using local storage (Memory), it saves to disk after processing with Sharp.
  */
 const resizeImage = async (req, res, next) => {
   // If no file was uploaded, skip
   if (!req.file) {
+    return next();
+  }
+
+  // If using Cloudinary, the file is already uploaded and path is the URL
+  if (process.env.STORAGE_TYPE === "cloudinary") {
+    // For Cloudinary, path is the secure_url
+    // We don't need to do anything here, controllers will use req.file.path
     return next();
   }
 
@@ -25,28 +33,30 @@ const resizeImage = async (req, res, next) => {
       destDir = upload.galleryDir;
     } else if (req.file.fieldname === 'paymentProof') {
       destDir = upload.proofsDir;
+    } else if (req.file.fieldname === 'instructorImage') {
+      destDir = upload.instructorsDir;
     }
 
     const outputPath = path.join(destDir, filename);
 
-    // Process with Sharp
-    await sharp(req.file.buffer)
-      .resize(1200, 1200, {
-        fit: 'inside', // Maintain aspect ratio, don't enlarge
-        withoutEnlargement: true
-      })
-      .webp({ quality: 80 })
-      .toFile(outputPath);
-
-    // Update req.file properties for subsequent route handlers
-    req.file.filename = filename;
-    req.file.path = outputPath;
+    // Process with Sharp (only for local memory storage)
+    if (req.file.buffer) {
+        await sharp(req.file.buffer)
+          .resize(1200, 1200, {
+            fit: 'inside',
+            withoutEnlargement: true
+          })
+          .webp({ quality: 80 })
+          .toFile(outputPath);
+    
+        // Update req.file properties for subsequent route handlers
+        req.file.filename = filename;
+        req.file.path = outputPath;
+    }
     
     next();
   } catch (err) {
     console.error('Sharp processing error:', err);
-    // Don't block the request if compression fails, but log it
-    // Alternatively, you could fail the request: next(err);
     next();
   }
 };

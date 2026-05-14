@@ -134,6 +134,19 @@ model Gallery {
   @@map("gallery")
 }
 
+/// Instructors/Masters of this club.
+model Instructor {
+  id        Int      @id @default(autoincrement())
+  name      String
+  rank      String   @default("DAN I Kukkiwon")
+  image     String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("instructors")
+}
+
 enum Role {
   superadmin
   club_admin

@@ -1,10 +1,9 @@
 const express = require("express");
 const prisma = require("../lib/prisma");
 const { authenticate, authorize } = require("../middleware/auth");
+const { deleteFile } = require("../lib/fileHelper");
 const upload = require("../middleware/multer");
 const resizeImage = require("../middleware/resize");
-const fs = require("fs");
-const path = require("path");
 
 const router = express.Router();
 
@@ -60,7 +59,7 @@ router.post(
         data: {
           title,
           description: description || null,
-          image: req.file.filename,
+          image: req.file.path.startsWith("http") ? req.file.path : req.file.filename,
         },
       });
 
@@ -88,9 +87,11 @@ router.delete(
       }
 
       // Delete image file
-      const imagePath = path.join(__dirname, "../../public/uploads/gallery", item.image);
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
+      if (item.image) {
+        const fileIdentifier = item.image.startsWith("http") 
+          ? item.image 
+          : `/uploads/gallery/${item.image}`;
+        await deleteFile(fileIdentifier);
       }
 
       await prisma.gallery.delete({ where: { id } });

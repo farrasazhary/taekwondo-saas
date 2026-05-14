@@ -15,6 +15,7 @@ import Settings from './pages/Settings';
 import Members from './pages/Members';
 import Candidates from './pages/Candidates';
 import Gallery from './pages/Gallery';
+import Instructors from './pages/Instructors';
 import PaymentDummy from './pages/PaymentDummy';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
@@ -34,7 +35,7 @@ export default function App() {
           <AuthProvider>
           <Routes>
             {/* Public */}
-            <Route path="/landing" element={<Landing />} />
+            <Route path="/" element={<Landing />} />
             <Route path="/login" element={<GuestGuard><Login /></GuestGuard>} />
             <Route path="/forgot-password" element={<GuestGuard><ForgotPassword /></GuestGuard>} />
             <Route path="/reset-password/:token" element={<GuestGuard><ResetPassword /></GuestGuard>} />
@@ -45,15 +46,16 @@ export default function App() {
   
             {/* Protected */}
             <Route element={<AuthGuard><Layout /></AuthGuard>}>
-              <Route index element={<Dashboard />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="billing" element={<Billing />} />
-              <Route path="events" element={<Events />} />
-              <Route path="settings" element={<AdminGuard><Settings /></AdminGuard>} />
-              <Route path="members" element={<Members />} />
-              <Route path="candidates" element={<AdminGuard><Candidates /></AdminGuard>} />
-              <Route path="gallery" element={<AdminGuard><Gallery /></AdminGuard>} />
-              <Route path="pay/:id" element={<PaymentDummy />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/billing" element={<Billing />} />
+              <Route path="/events" element={<Events />} />
+              <Route path="/settings" element={<AdminGuard><Settings /></AdminGuard>} />
+              <Route path="/members" element={<Members />} />
+              <Route path="/candidates" element={<AdminGuard><Candidates /></AdminGuard>} />
+              <Route path="/gallery" element={<AdminGuard><Gallery /></AdminGuard>} />
+              <Route path="/instructors" element={<AdminGuard><Instructors /></AdminGuard>} />
+              <Route path="/pay/:id" element={<PaymentDummy />} />
             </Route>
 
             {/* 404 */}

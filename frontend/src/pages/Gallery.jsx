@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { getGallery, createGalleryItem, deleteGalleryItem } from '../api/gallery';
+import { getImageUrl } from '../utils/imageHelper';
 import { Plus, Trash2, X, Image, Upload, Trophy } from 'lucide-react';
 
 export default function Gallery() {
@@ -116,7 +117,7 @@ export default function Gallery() {
             <div key={item.id} className="card overflow-hidden group relative">
               <div className="relative h-52 bg-gray-100 dark:bg-[#0b1120] overflow-hidden">
                 <img
-                  src={`http://localhost:5000/uploads/gallery/${item.image}`}
+                  src={getImageUrl(item.image, 'gallery')}
                   alt={item.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />

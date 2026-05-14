@@ -3,16 +3,17 @@ import { createPortal } from 'react-dom';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useSettings } from '../../context/SettingsContext';
-import { LayoutGrid, User, Receipt, CalendarDays, Settings, HelpCircle, LogOut, X, UserRoundPlus, Users, Image } from 'lucide-react';
+import { LayoutGrid, User, Receipt, CalendarDays, Settings, HelpCircle, LogOut, X, UserRoundPlus, Users, Image, ShieldCheck } from 'lucide-react';
 
 const navItems = [
-  { to: '/', icon: LayoutGrid, label: 'Beranda' },
+  { to: '/dashboard', icon: LayoutGrid, label: 'Beranda' },
   { to: '/profile', icon: User, label: 'Profil Saya' },
   { to: '/billing', icon: Receipt, label: 'Tagihan' },
   { to: '/events', icon: CalendarDays, label: 'Agenda' },
   { to: '/members', icon: Users, label: 'Anggota' },
   { to: '/candidates', icon: UserRoundPlus, label: 'Kandidat', adminOnly: true },
   { to: '/gallery', icon: Image, label: 'Galeri', adminOnly: true },
+  { to: '/instructors', icon: ShieldCheck, label: 'Instruktur', adminOnly: true },
   { to: '/settings', icon: Settings, label: 'Pengaturan', adminOnly: true },
 ];
 
@@ -62,7 +63,9 @@ export default function Sidebar({ open, onClose }) {
         {/* Bottom */}
         <div className="px-3 pb-6 space-y-1">
           <a 
-            href="mailto:support@kinetic.com" 
+            href="https://wa.me/62812345678" 
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-navy-400 hover:text-white hover:bg-navy-800/50 transition-all"
           >
             <HelpCircle className="w-[18px] h-[18px]" /> Bantuan

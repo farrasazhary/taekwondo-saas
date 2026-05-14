@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 export default function Login() {
   const { login, register } = useAuth();
   const { settings } = useSettings();
   const [tab, setTab] = useState('login');
   const [form, setForm] = useState({ name: '', email: '', password: '', phone: '' });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -111,8 +112,17 @@ export default function Login() {
                   <Link to="/forgot-password" size="sm" className="text-xs font-bold text-primary-600 hover:text-primary-500 transition-colors">Lupa Password?</Link>
                 )}
               </div>
-              <input type="password" required minLength={tab === 'register' ? 8 : 1} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all" placeholder="••••••••" />
+              <div className="relative">
+                <input type={showPassword ? 'text' : 'password'} required minLength={tab === 'register' ? 8 : 1} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all pr-12" placeholder="••••••••" />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
             </div>
             <button type="submit" disabled={loading}
               className="w-full py-3.5 bg-primary-600 hover:bg-primary-500 text-white font-bold uppercase tracking-wider rounded-lg transition-all disabled:opacity-50 shadow-lg shadow-primary-600/20">
@@ -121,7 +131,7 @@ export default function Login() {
           </form>
 
           <div className="mt-8 text-center">
-            <Link to="/landing" className="text-sm text-gray-400 hover:text-primary-600 transition-colors">← Kembali ke beranda</Link>
+            <Link to="/" className="text-sm text-gray-400 hover:text-primary-600 transition-colors">← Kembali ke beranda</Link>
           </div>
         </div>
       </div>

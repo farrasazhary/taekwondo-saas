@@ -4,6 +4,7 @@ const prisma = require("../lib/prisma");
 const upload = require("../middleware/multer");
 const resizeImage = require("../middleware/resize");
 const { authenticate, authorize } = require("../middleware/auth");
+const { deleteFile } = require("../lib/fileHelper");
 const {
   createUserSchema,
   updateUserSchema,
@@ -246,7 +247,17 @@ router.put("/:id", upload.single("profileImage"), resizeImage, async (req, res, 
 
     // Handle profile image
     if (req.file) {
-      updateData.profileImage = req.file.filename;
+      // Delete old file if exists
+      if (existingUser.profileImage) {
+        // If it's a full URL (Cloudinary), pass as is. If local, pass formatted path.
+        const oldFileIdentifier = existingUser.profileImage.startsWith("http") 
+          ? existingUser.profileImage 
+          : `/uploads/profiles/${existingUser.profileImage}`;
+        await deleteFile(oldFileIdentifier);
+      }
+      
+      // Store full URL for Cloudinary, just filename for local
+      updateData.profileImage = req.file.path.startsWith("http") ? req.file.path : req.file.filename;
     }
 
     console.log("UPDATE USER DEBUG - Final updateData:", updateData);
@@ -336,6 +347,14 @@ router.delete("/:id", authorize("club_admin", "superadmin"), async (req, res, ne
     }
 
     await prisma.user.delete({ where: { id } });
+
+    // Clean up physical file
+    if (user.profileImage) {
+      const fileIdentifier = user.profileImage.startsWith("http") 
+        ? user.profileImage 
+        : `/uploads/profiles/${user.profileImage}`;
+      await deleteFile(fileIdentifier);
+    }
 
     res.json({ success: true, message: "User deleted successfully." });
   } catch (err) {

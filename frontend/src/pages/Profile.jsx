@@ -5,6 +5,7 @@ import { updateUser } from '../api/users';
 import { requestMembershipUpgrade } from '../api/membership';
 import { Save, AlertCircle, CheckCircle, User, Mail, Phone as PhoneIcon, Award, MapPin, Calendar, Camera, ChevronRight, Info, Edit3, ArrowLeft } from 'lucide-react';
 import MessageCard from '../components/MessageCard';
+import { getImageUrl } from '../utils/imageHelper';
 
 export default function Profile() {
   const { user, checkAuth } = useAuth();
@@ -39,7 +40,7 @@ export default function Profile() {
         birthDate: user.birthDate ? new Date(user.birthDate).toISOString().split('T')[0] : ''
       });
       if (user.profileImage) {
-        setPreview(`http://localhost:5000/uploads/profiles/${user.profileImage}`);
+        setPreview(getImageUrl(user.profileImage, 'profiles'));
       }
     }
     getBelts().then(r => setBelts(r.data.data));
@@ -84,7 +85,7 @@ export default function Profile() {
         birthPlace: user.birthPlace || '',
         birthDate: user.birthDate ? new Date(user.birthDate).toISOString().split('T')[0] : ''
       });
-      setPreview(user.profileImage ? `http://localhost:5000/uploads/profiles/${user.profileImage}` : null);
+      setPreview(user.profileImage ? getImageUrl(user.profileImage, 'profiles') : null);
       setFile(null);
     }
     setIsEditing(false);

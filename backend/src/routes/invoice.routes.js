@@ -259,7 +259,7 @@ router.post("/:id/upload-proof", upload.single("paymentProof"), resizeImage, asy
       where: { id },
       data: {
         status: "pending_verification",
-        paymentProof: req.file.filename,
+        paymentProof: req.file.path.startsWith("http") ? req.file.path : req.file.filename,
         paymentMethod: "manual"
       },
     });

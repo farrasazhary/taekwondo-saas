@@ -3,6 +3,7 @@ const prisma = require("../lib/prisma");
 const upload = require("../middleware/multer");
 const resizeImage = require("../middleware/resize");
 const { authenticate, authorize } = require("../middleware/auth");
+const { deleteFile } = require("../lib/fileHelper");
 const { createEventSchema, updateEventSchema, registerEventSchema } = require("../validators/event.validator");
 
 const router = express.Router();
@@ -53,15 +54,32 @@ router.get("/", async (req, res, next) => {
       ...(upcoming === "true" && { eventDate: { gte: new Date() } }),
     };
 
-    const [events, total] = await Promise.all([
-      prisma.event.findMany({
-        where,
-        orderBy: { eventDate: "asc" },
-        skip,
-        take: parseInt(limit),
-      }),
-      prisma.event.count({ where }),
-    ]);
+    const allEvents = await prisma.event.findMany({
+      where,
+    });
+
+    const now = new Date();
+    const sortedEvents = allEvents.sort((a, b) => {
+      const isAPassed = new Date(a.eventDate) < now;
+      const isBPassed = new Date(b.eventDate) < now;
+
+      // Upcoming first, then Passed
+      if (isAPassed !== isBPassed) {
+        return isAPassed ? 1 : -1;
+      }
+
+      // Within groups:
+      if (!isAPassed) {
+        // Upcoming: soonest first (asc)
+        return new Date(a.eventDate) - new Date(b.eventDate);
+      } else {
+        // Passed: most recent first (desc)
+        return new Date(b.eventDate) - new Date(a.eventDate);
+      }
+    });
+
+    const total = sortedEvents.length;
+    const events = sortedEvents.slice(skip, skip + parseInt(limit));
 
     res.json({
       success: true,
@@ -93,7 +111,9 @@ router.post("/", authorize("club_admin", "superadmin"), upload.single("image"), 
         location: data.location || null,
         mapUrl: data.mapUrl || null,
         price: data.price || null,
-        image: req.file ? req.file.filename : null,
+        image: req.file 
+          ? (req.file.path.startsWith("http") ? req.file.path : req.file.filename) 
+          : null,
         eventDate: new Date(data.eventDate),
       },
     });
@@ -140,10 +160,22 @@ router.put("/:id", authorize("club_admin", "superadmin"), upload.single("image")
       return res.status(404).json({ success: false, message: "Event not found." });
     }
 
+    if (req.file) {
+      // Delete old image if exists
+      if (existing.image) {
+        const oldFileIdentifier = existing.image.startsWith("http") 
+          ? existing.image 
+          : `/uploads/events/${existing.image}`;
+        await deleteFile(oldFileIdentifier);
+      }
+    }
+
     const updateData = {
       ...data,
       ...(data.eventDate && { eventDate: new Date(data.eventDate) }),
-      ...(req.file && { image: req.file.filename }),
+      ...(req.file && { 
+        image: req.file.path.startsWith("http") ? req.file.path : req.file.filename 
+      }),
     };
 
     const event = await prisma.event.update({
@@ -174,6 +206,14 @@ router.delete("/:id", authorize("club_admin", "superadmin"), async (req, res, ne
     }
 
     await prisma.event.delete({ where: { id } });
+
+    // Clean up physical file
+    if (existing.image) {
+      const fileIdentifier = existing.image.startsWith("http") 
+        ? existing.image 
+        : `/uploads/events/${existing.image}`;
+      await deleteFile(fileIdentifier);
+    }
 
     res.json({ success: true, message: "Event deleted successfully." });
   } catch (err) {

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useAuth } from '../context/AuthContext';
 import { getUsers, getUserStats, createUser, updateUser, deleteUser } from '../api/users';
+import { getImageUrl } from '../utils/imageHelper';
 import { getBelts } from '../api/belts';
 import { UserPlus, Search, Edit, Trash2, X, AlertCircle, Users, Star, GraduationCap, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import MemberStatCard from '../components/MemberStatCard';
@@ -265,7 +266,7 @@ export default function Members() {
                     <div className="flex items-center gap-4">
                       <div className="w-11 h-11 rounded-2xl bg-gray-100 dark:bg-navy-800 flex items-center justify-center font-bold text-gray-500 dark:text-navy-400 overflow-hidden shrink-0 border-2 border-white dark:border-navy-900 shadow-sm ring-1 ring-gray-100 dark:ring-navy-800">
                         {u.profileImage ? (
-                          <img src={`http://localhost:5000/uploads/profiles/${u.profileImage}`} className="w-full h-full object-cover" alt={u.name} />
+                          <img src={getImageUrl(u.profileImage, 'profiles')} className="w-full h-full object-cover" alt={u.name} />
                         ) : u.name?.[0]?.toUpperCase()}
                       </div>
                       <div>
@@ -325,7 +326,7 @@ export default function Members() {
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-navy-800 flex items-center justify-center font-bold text-gray-500 dark:text-navy-400 overflow-hidden shrink-0 border-2 border-white dark:border-navy-900 shadow-sm ring-1 ring-gray-100 dark:ring-navy-800">
                     {u.profileImage ? (
-                      <img src={`http://localhost:5000/uploads/profiles/${u.profileImage}`} className="w-full h-full object-cover" alt={u.name} />
+                      <img src={getImageUrl(u.profileImage, 'profiles')} className="w-full h-full object-cover" alt={u.name} />
                     ) : u.name?.[0]?.toUpperCase()}
                   </div>
                   <div>
