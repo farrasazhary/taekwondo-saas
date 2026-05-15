@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { getEvents, createEvent, updateEvent, deleteEvent, getMyRegistrations, registerEvent, getEventParticipants } from '../api/events';
 import { getImageUrl } from '../utils/imageHelper';
 import { compressImage } from '../utils/compressor';
-import { Plus, Trash2, Edit2, X, AlertCircle, Trophy, GraduationCap, PartyPopper, CalendarDays, Clock, Users, CheckCircle, Search, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Edit2, X, AlertCircle, Trophy, GraduationCap, PartyPopper, CalendarDays, Clock, Users, CheckCircle, Search, Loader2, Upload, Image as ImageIcon } from 'lucide-react';
 
 const typeIcon = { championship: Trophy, test: GraduationCap, gathering: PartyPopper };
 const typeColor = { championship: 'bg-amber-50 text-amber-600', test: 'bg-blue-50 text-blue-600', gathering: 'bg-emerald-50 text-emerald-600' };
@@ -91,7 +91,7 @@ export default function Events() {
       price: ev.price || '',
       location: ev.location || '',
       mapUrl: ev.mapUrl || '',
-      image: null
+      image: ev.image || null
     });
     setEditId(ev.id);
     setError('');
