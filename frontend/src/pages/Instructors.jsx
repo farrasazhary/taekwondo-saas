@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { getInstructors, createInstructor, deleteInstructor, updateInstructor } from '../api/instructor';
 import { getImageUrl } from '../utils/imageHelper';
-import { Plus, Trash2, X, Users, Upload, ShieldCheck, Pencil } from 'lucide-react';
+import { compressImage } from '../utils/compressor';
+import { Plus, Trash2, X, Users, Upload, ShieldCheck, Pencil, Loader2 } from 'lucide-react';
 
 const RANKS = [
   'DAN I Kukkiwon',
@@ -26,6 +27,7 @@ export default function Instructors() {
   const [form, setForm] = useState({ name: '', rank: RANKS[0] });
   const [preview, setPreview] = useState(null);
   const [file, setFile] = useState(null);
+  const [isCompressing, setIsCompressing] = useState(false);
   const fileRef = useRef(null);
 
   useEffect(() => { fetchItems(); }, []);
@@ -46,13 +48,28 @@ export default function Instructors() {
     return str.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const f = e.target.files[0];
     if (f) {
-      setFile(f);
-      const reader = new FileReader();
-      reader.onloadend = () => setPreview(reader.result);
-      reader.readAsDataURL(f);
+      setIsCompressing(true);
+      try {
+        const compressed = await compressImage(f, {
+          maxSizeMB: 0.5, // Even smaller for profile-style pics
+          maxWidthOrHeight: 800
+        });
+        setFile(compressed);
+        const reader = new FileReader();
+        reader.onloadend = () => setPreview(reader.result);
+        reader.readAsDataURL(compressed);
+      } catch (err) {
+        console.error('Compression error:', err);
+        setFile(f);
+        const reader = new FileReader();
+        reader.onloadend = () => setPreview(reader.result);
+        reader.readAsDataURL(f);
+      } finally {
+        setIsCompressing(false);
+      }
     }
   };
 
@@ -207,9 +224,18 @@ export default function Instructors() {
                   <img src={preview} alt="Preview" className="w-full h-full object-cover" />
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-500">
-                    <Upload className="w-10 h-10 mb-2" />
-                    <p className="text-[11px] font-bold uppercase tracking-widest">Klik untuk unggah foto</p>
-                    <p className="text-[10px] text-gray-400 mt-1 uppercase font-bold tracking-wider px-1">PNG, JPG, max 5MB</p>
+                    {isCompressing ? (
+                      <>
+                        <Loader2 className="w-10 h-10 mb-2 animate-spin text-primary-500" />
+                        <p className="text-[11px] font-bold uppercase tracking-widest text-primary-500">Mengompres...</p>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-10 h-10 mb-2" />
+                        <p className="text-[11px] font-bold uppercase tracking-widest">Klik untuk unggah foto</p>
+                        <p className="text-[10px] text-gray-400 mt-1 uppercase font-bold tracking-wider px-1">PNG, JPG, max 5MB</p>
+                      </>
+                    )}
                   </div>
                 )}
                 <input ref={fileRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
@@ -242,10 +268,10 @@ export default function Instructors() {
 
               <button
                 type="submit"
-                disabled={saving || !form.name}
+                disabled={saving || isCompressing || !form.name}
                 className="w-full py-3.5 bg-primary-600 hover:bg-primary-500 text-white text-xs font-bold uppercase tracking-[0.2em] rounded-xl transition-all shadow-lg shadow-primary-600/20 disabled:opacity-50"
               >
-                {saving ? 'Menyimpan...' : (editItem ? 'Simpan Perubahan' : 'Tambah Instruktur')}
+                {saving ? 'Menyimpan...' : isCompressing ? 'Menyiapkan...' : (editItem ? 'Simpan Perubahan' : 'Tambah Instruktur')}
               </button>
             </form>
           </div>

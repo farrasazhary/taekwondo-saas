@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { getGallery, createGalleryItem, deleteGalleryItem } from '../api/gallery';
 import { getImageUrl } from '../utils/imageHelper';
-import { Plus, Trash2, X, Image, Upload, Trophy } from 'lucide-react';
+import { compressImage } from '../utils/compressor';
+import { Plus, Trash2, X, Image, Upload, Trophy, Loader2 } from 'lucide-react';
 
 export default function Gallery() {
   const [items, setItems] = useState([]);
@@ -13,6 +14,7 @@ export default function Gallery() {
   const [form, setForm] = useState({ title: '', description: '' });
   const [preview, setPreview] = useState(null);
   const [file, setFile] = useState(null);
+  const [isCompressing, setIsCompressing] = useState(false);
   const fileRef = useRef(null);
 
   useEffect(() => { fetchItems(); }, []);
@@ -29,13 +31,31 @@ export default function Gallery() {
     }
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const f = e.target.files[0];
     if (f) {
-      setFile(f);
-      const reader = new FileReader();
-      reader.onloadend = () => setPreview(reader.result);
-      reader.readAsDataURL(f);
+      setIsCompressing(true);
+      try {
+        // Compress image before setting it to state
+        const compressed = await compressImage(f, {
+          maxSizeMB: 0.8,
+          maxWidthOrHeight: 1200
+        });
+        
+        setFile(compressed);
+        const reader = new FileReader();
+        reader.onloadend = () => setPreview(reader.result);
+        reader.readAsDataURL(compressed);
+      } catch (err) {
+        console.error('Compression error:', err);
+        // Fallback to original if compression fails
+        setFile(f);
+        const reader = new FileReader();
+        reader.onloadend = () => setPreview(reader.result);
+        reader.readAsDataURL(f);
+      } finally {
+        setIsCompressing(false);
+      }
     }
   };
 
@@ -166,9 +186,18 @@ export default function Gallery() {
                   <img src={preview} alt="Preview" className="w-full h-full object-cover" />
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-500">
-                    <Upload className="w-10 h-10 mb-2" />
-                    <p className="text-[11px] font-bold uppercase tracking-widest">Klik untuk unggah gambar</p>
-                    <p className="text-[10px] text-gray-400 mt-1 uppercase font-bold tracking-wider px-1">PNG, JPG, max 5MB</p>
+                    {isCompressing ? (
+                      <>
+                        <Loader2 className="w-10 h-10 mb-2 animate-spin text-primary-500" />
+                        <p className="text-[11px] font-bold uppercase tracking-widest text-primary-500">Mengompres Gambar...</p>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-10 h-10 mb-2" />
+                        <p className="text-[11px] font-bold uppercase tracking-widest">Klik untuk unggah gambar</p>
+                        <p className="text-[10px] text-gray-400 mt-1 uppercase font-bold tracking-wider px-1">PNG, JPG, max 5MB</p>
+                      </>
+                    )}
                   </div>
                 )}
                 <input ref={fileRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
@@ -199,10 +228,10 @@ export default function Gallery() {
 
               <button
                 type="submit"
-                disabled={saving || !file || !form.title}
+                disabled={saving || isCompressing || !file || !form.title}
                 className="w-full py-3.5 bg-primary-600 hover:bg-primary-500 text-white text-xs font-bold uppercase tracking-[0.2em] rounded-xl transition-all shadow-lg shadow-primary-600/20 disabled:opacity-50"
               >
-                {saving ? 'Mengunggah...' : 'Simpan ke Galeri'}
+                {saving ? 'Mengunggah...' : isCompressing ? 'Menyiapkan...' : 'Simpan ke Galeri'}
               </button>
             </form>
           </div>

@@ -3,7 +3,8 @@ import { createPortal } from 'react-dom';
 import { useAuth } from '../context/AuthContext';
 import { getEvents, createEvent, updateEvent, deleteEvent, getMyRegistrations, registerEvent, getEventParticipants } from '../api/events';
 import { getImageUrl } from '../utils/imageHelper';
-import { Plus, Trash2, Edit2, X, AlertCircle, Trophy, GraduationCap, PartyPopper, CalendarDays, Clock, Users, CheckCircle, Search } from 'lucide-react';
+import { compressImage } from '../utils/compressor';
+import { Plus, Trash2, Edit2, X, AlertCircle, Trophy, GraduationCap, PartyPopper, CalendarDays, Clock, Users, CheckCircle, Search, Loader2 } from 'lucide-react';
 
 const typeIcon = { championship: Trophy, test: GraduationCap, gathering: PartyPopper };
 const typeColor = { championship: 'bg-amber-50 text-amber-600', test: 'bg-blue-50 text-blue-600', gathering: 'bg-emerald-50 text-emerald-600' };
@@ -24,6 +25,7 @@ export default function Events() {
   const [form, setForm] = useState({ title: '', type: 'gathering', eventDate: '', description: '', price: '', image: null, location: '', mapUrl: '' });
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
 
   const [myRegistrations, setMyRegistrations] = useState([]);
 
@@ -333,14 +335,34 @@ export default function Events() {
                   </div>
                   <div className="bg-blue-50/50 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-100/50 dark:border-blue-900/20 flex flex-col justify-center">
                     <label className="block text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2 px-1">Cover Poster</label>
-                    <input type="file" accept="image/*" onChange={e => setForm({...form, image: e.target.files[0]})} 
-                      className="w-full px-2 py-1.5 bg-white dark:bg-[#0b1120] border border-gray-200 dark:border-[#2a3447] rounded-xl text-gray-900 dark:text-white text-sm cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-50 dark:file:bg-blue-900/30 file:text-blue-700 dark:file:text-blue-400 transition-colors shadow-sm" />
+                    <div className="flex items-center gap-3">
+                      <input type="file" accept="image/*" onChange={async (e) => {
+                        const f = e.target.files[0];
+                        if (f) {
+                          setIsCompressing(true);
+                          try {
+                            const compressed = await compressImage(f, {
+                              maxSizeMB: 1,
+                              maxWidthOrHeight: 1280
+                            });
+                            setForm({...form, image: compressed});
+                          } catch (err) {
+                            setForm({...form, image: f});
+                          } finally {
+                            setIsCompressing(false);
+                          }
+                        }
+                      }} 
+                      className="flex-1 px-2 py-1.5 bg-white dark:bg-[#0b1120] border border-gray-200 dark:border-[#2a3447] rounded-xl text-gray-900 dark:text-white text-sm cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-50 dark:file:bg-blue-900/30 file:text-blue-700 dark:file:text-blue-400 transition-colors shadow-sm" />
+                      {isCompressing && <Loader2 className="w-5 h-5 animate-spin text-primary-500" />}
+                    </div>
+                    {isCompressing && <p className="text-[10px] text-primary-500 font-bold mt-1 px-1">Mengompres gambar...</p>}
                   </div>
                 </div>
               </div>
               <div className="flex gap-4 p-6 border-t border-gray-100 dark:border-[#2a3447] bg-gray-50/80 dark:bg-[#0b1120]/50 shrink-0">
                 <button type="button" onClick={() => setModal(false)} className="px-6 py-3 text-sm font-bold rounded-xl border border-gray-200 dark:border-[#2a3447] text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-[#1c2434] transition-colors">Batal</button>
-                <button type="submit" disabled={saving} className="flex-1 py-3 text-sm font-bold rounded-xl bg-primary-600 text-white shadow-lg shadow-primary-600/20 hover:bg-primary-500 disabled:opacity-50 transition-all active:scale-95">{saving ? 'Menyimpan...' : editId ? 'Simpan' : 'Publikasikan'}</button>
+                <button type="submit" disabled={saving || isCompressing} className="flex-1 py-3 text-sm font-bold rounded-xl bg-primary-600 text-white shadow-lg shadow-primary-600/20 hover:bg-primary-500 disabled:opacity-50 transition-all active:scale-95">{saving ? 'Menyimpan...' : isCompressing ? 'Menyiapkan...' : editId ? 'Simpan' : 'Publikasikan'}</button>
               </div>
             </form>
           </div>
