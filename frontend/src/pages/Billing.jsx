@@ -26,6 +26,7 @@ export default function Billing() {
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const [verifyModal, setVerifyModal] = useState({ open: false, invoice: null });
+  const [zoomImage, setZoomImage] = useState(null);
 
   useEffect(() => { fetchInvoices(); }, [page, statusFilter]);
   useEffect(() => { if (isAdmin) getUsers({ limit: 200 }).then(r => setMembers(r.data.data)); }, []);
@@ -387,10 +388,10 @@ export default function Billing() {
                      <img 
                        src={getImageUrl(verifyModal.invoice.paymentProof, 'proofs')} 
                        alt="Bukti Transfer" 
-                       className="w-full h-auto object-contain max-h-[40vh] mx-auto" 
-                       onClick={() => window.open(getImageUrl(verifyModal.invoice.paymentProof, 'proofs'), '_blank')}
+                       className="w-full h-auto object-contain max-h-[45vh] mx-auto cursor-zoom-in hover:opacity-90 transition-opacity" 
+                       onClick={() => setZoomImage(getImageUrl(verifyModal.invoice.paymentProof, 'proofs'))}
                      />
-                     <p className="text-[10px] text-gray-400 text-center py-2 bg-white/50 dark:bg-black/20 italic">Klik gambar untuk melihat ukuran penuh</p>
+                     <p className="text-[10px] text-gray-400 text-center py-2 bg-white/50 dark:bg-black/20 italic font-bold">Klik gambar untuk memperbesar (Full View)</p>
                    </div>
                  ) : (
                    <div className="py-12 px-6 text-center bg-gray-50 dark:bg-[#0b1120] rounded-2xl border-2 border-dashed border-gray-200 dark:border-[#2a3447]">
@@ -420,6 +421,25 @@ export default function Billing() {
                </button>
             </div>
           </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Image Zoom Modal */}
+      {zoomImage && createPortal(
+        <div className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 animate-fade-in" onClick={() => setZoomImage(null)}>
+           <button className="absolute top-6 right-6 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all">
+             <X className="w-8 h-8" />
+           </button>
+           <div className="w-full h-full flex items-center justify-center" onClick={e => e.stopPropagation()}>
+              <img 
+                src={zoomImage} 
+                alt="Zoom" 
+                className="max-w-full max-h-full object-contain rounded-lg shadow-2xl animate-scale-in"
+                onClick={() => setZoomImage(null)}
+              />
+           </div>
+           <p className="mt-4 text-white/60 text-xs font-bold uppercase tracking-widest">Klik di mana saja untuk menutup</p>
         </div>,
         document.body
       )}

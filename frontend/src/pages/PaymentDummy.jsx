@@ -175,7 +175,7 @@ export default function PaymentDummy() {
                      className={`w-full h-48 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all overflow-hidden relative ${preview ? 'border-primary-500' : 'border-gray-200 dark:border-[#2a3447] hover:border-primary-400 dark:hover:border-primary-500 bg-gray-50 dark:bg-[#0b1120]'}`}
                    >
                      {preview ? (
-                        <img src={preview} alt="Bukti Transfer" className="w-full h-full object-cover" />
+                        <img src={preview} alt="Bukti Transfer" className="w-full h-auto max-h-full object-contain mx-auto" />
                      ) : (
                         <div className="text-center p-4">
                           {isCompressing ? (
