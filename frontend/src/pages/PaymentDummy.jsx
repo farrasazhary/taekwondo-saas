@@ -199,10 +199,22 @@ export default function PaymentDummy() {
                 <button 
                   onClick={handleUpload} 
                   disabled={uploading || isCompressing || !file}
-                  className="w-full py-4 bg-primary-600 hover:bg-primary-500 text-white font-bold text-lg rounded-xl shadow-lg shadow-primary-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 uppercase tracking-wider"
+                  className="relative w-full py-5 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600 text-white rounded-2xl shadow-[0_10px_25px_-5px_rgba(220,38,38,0.4)] transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed group overflow-hidden"
                 >
-                  {(uploading || isCompressing) ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <Upload className="w-5 h-5" />}
-                  {uploading ? 'Mengunggah...' : isCompressing ? 'Menyiapkan...' : 'Kirim Bukti Pembayaran'}
+                  <div className="relative z-10 flex items-center justify-center gap-3">
+                    {(uploading || isCompressing) ? (
+                      <Loader2 className="w-6 h-6 animate-spin" />
+                    ) : (
+                      <Upload className="w-6 h-6 group-hover:-translate-y-1 transition-transform" />
+                    )}
+                    <div className="flex flex-col items-start text-left leading-tight">
+                      <span className="text-sm font-black uppercase tracking-[0.15em]">
+                        {uploading ? 'Mengunggah...' : isCompressing ? 'Menyiapkan...' : 'Kirim Bukti Sekarang'}
+                      </span>
+                      <span className="text-[10px] opacity-70 font-bold uppercase tracking-widest mt-0.5">Konfirmasi Pembayaran Anda</span>
+                    </div>
+                  </div>
+                  <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
                 </button>
               </div>
             )}
