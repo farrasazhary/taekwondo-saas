@@ -191,7 +191,7 @@ export default function Events() {
             const isFree = !ev.price || Number(ev.price) === 0;
 
             return (
-              <div key={ev.id} className="card group overflow-hidden hover:shadow-lg transition-all animate-slide-up rounded-2xl flex flex-col">
+              <div key={ev.id} className="relative card group overflow-hidden hover:shadow-lg transition-all animate-slide-up rounded-2xl flex flex-col">
                 <a href={`/events/${ev.id}`} className="relative h-40 bg-gray-100 dark:bg-[#0b1120] overflow-hidden block">
                   {ev.image ? (
                     <img src={getImageUrl(ev.image, 'events')} alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
