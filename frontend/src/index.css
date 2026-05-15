@@ -69,17 +69,18 @@
    Animations
    ============================================================ */
 /* ============================================================
-   Animations (Disabled for Performance)
+   Animations (Instant / No-Motion Mode)
    ============================================================ */
 .animate-fade-in, 
 .animate-slide-up, 
 .animate-scale-in, 
 .animate-bell-swing,
-.stagger > * { 
-  animation: none !important; 
-  transition: none !important;
-  opacity: 1 !important;
-  transform: none !important;
+.stagger > *,
+.transition-all,
+.transition { 
+  animation-duration: 0s !important;
+  transition-duration: 0s !important;
+  animation-delay: 0s !important;
 }
 
 /* Remove heavy filters */
