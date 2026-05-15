@@ -388,7 +388,7 @@ export default function Billing() {
                      <img 
                        src={getImageUrl(verifyModal.invoice.paymentProof, 'proofs')} 
                        alt="Bukti Transfer" 
-                       className="w-full h-auto object-contain max-h-[45vh] mx-auto cursor-zoom-in hover:opacity-90 transition-opacity" 
+                       className="w-full h-auto object-contain max-h-[65vh] mx-auto cursor-zoom-in hover:opacity-90 transition-opacity" 
                        onClick={() => setZoomImage(getImageUrl(verifyModal.invoice.paymentProof, 'proofs'))}
                      />
                      <p className="text-[10px] text-gray-400 text-center py-2 bg-white/50 dark:bg-black/20 italic font-bold">Klik gambar untuk memperbesar (Full View)</p>
