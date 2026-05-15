@@ -174,12 +174,14 @@ export default function Profile() {
                   <User className="w-16 h-16 text-gray-200" />
                 )}
               </div>
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isCompressing}
-                className="absolute -right-2 -bottom-2 w-10 h-10 bg-primary-600 hover:bg-primary-700 text-white rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-110 active:scale-95 border-4 border-white disabled:opacity-50">
-                {isCompressing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Camera className="w-5 h-5" />}
-              </button>
+              {isEditing && (
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isCompressing}
+                  className="absolute -right-2 -bottom-2 w-10 h-10 bg-primary-600 hover:bg-primary-700 text-white rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-110 active:scale-95 border-4 border-white disabled:opacity-50">
+                  {isCompressing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Camera className="w-5 h-5" />}
+                </button>
+              )}
               <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
             </div>
 
