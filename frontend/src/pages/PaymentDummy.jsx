@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getInvoice, uploadPaymentProof } from '../api/invoices';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
-import { CreditCard, CheckCircle, ArrowLeft, Clock, Building2, Upload, AlertCircle, Image as ImageIcon } from 'lucide-react';
+import { CreditCard, CheckCircle, ArrowLeft, Clock, Building2, Upload, AlertCircle, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { compressImage } from '../utils/compressor';
 import MessageCard from '../components/MessageCard';
 
 export default function PaymentDummy() {
@@ -14,6 +15,7 @@ export default function PaymentDummy() {
   const [invoice, setInvoice] = useState(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
   
   const [messageCard, setMessageCard] = useState({ show: false, message: '', type: 'success' });
   const [file, setFile] = useState(null);
@@ -36,14 +38,28 @@ export default function PaymentDummy() {
     }
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const f = e.target.files[0];
     if (f) {
-      if (f.size > 5 * 1024 * 1024) return setMessageCard({ show: true, message: "Ukuran file terlalu besar", type: 'warning' });
-      setFile(f);
-      const reader = new FileReader();
-      reader.onloadend = () => setPreview(reader.result);
-      reader.readAsDataURL(f);
+      setIsCompressing(true);
+      try {
+        const compressed = await compressImage(f, {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1280
+        });
+        setFile(compressed);
+        const reader = new FileReader();
+        reader.onloadend = () => setPreview(reader.result);
+        reader.readAsDataURL(compressed);
+      } catch (err) {
+        console.error('Compression error:', err);
+        setFile(f);
+        const reader = new FileReader();
+        reader.onloadend = () => setPreview(reader.result);
+        reader.readAsDataURL(f);
+      } finally {
+        setIsCompressing(false);
+      }
     }
   };
 
@@ -162,9 +178,18 @@ export default function PaymentDummy() {
                         <img src={preview} alt="Bukti Transfer" className="w-full h-full object-cover" />
                      ) : (
                         <div className="text-center p-4">
-                          <Upload className="w-10 h-10 text-gray-400 mx-auto mb-2" />
-                          <p className="text-sm font-bold text-gray-600 dark:text-gray-300">Klik untuk pilih gambar</p>
-                          <p className="text-xs text-gray-400 mt-1">Format: JPG, PNG (Max 5MB)</p>
+                          {isCompressing ? (
+                            <>
+                              <Loader2 className="w-10 h-10 text-primary-500 mx-auto mb-2 animate-spin" />
+                              <p className="text-sm font-bold text-primary-600">Mengompres Bukti...</p>
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="w-10 h-10 text-gray-400 mx-auto mb-2" />
+                              <p className="text-sm font-bold text-gray-600 dark:text-gray-300">Klik untuk pilih gambar</p>
+                              <p className="text-xs text-gray-400 mt-1">Format: JPG, PNG (Max 5MB)</p>
+                            </>
+                          )}
                         </div>
                      )}
                      <input type="file" className="hidden" ref={fileRef} accept="image/*" onChange={handleFileChange} />
@@ -173,11 +198,11 @@ export default function PaymentDummy() {
 
                 <button 
                   onClick={handleUpload} 
-                  disabled={uploading || !file}
+                  disabled={uploading || isCompressing || !file}
                   className="w-full py-4 bg-primary-600 hover:bg-primary-500 text-white font-bold text-lg rounded-xl shadow-lg shadow-primary-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 uppercase tracking-wider"
                 >
-                  {uploading ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <Upload className="w-5 h-5" />}
-                  {uploading ? 'Mengunggah...' : 'Kirim Bukti Pembayaran'}
+                  {(uploading || isCompressing) ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <Upload className="w-5 h-5" />}
+                  {uploading ? 'Mengunggah...' : isCompressing ? 'Menyiapkan...' : 'Kirim Bukti Pembayaran'}
                 </button>
               </div>
             )}

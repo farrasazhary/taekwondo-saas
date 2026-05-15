@@ -6,6 +6,8 @@ import { requestMembershipUpgrade } from '../api/membership';
 import { Save, AlertCircle, CheckCircle, User, Mail, Phone as PhoneIcon, Award, MapPin, Calendar, Camera, ChevronRight, Info, Edit3, ArrowLeft } from 'lucide-react';
 import MessageCard from '../components/MessageCard';
 import { getImageUrl } from '../utils/imageHelper';
+import { compressImage } from '../utils/compressor';
+import { Loader2 } from 'lucide-react';
 
 export default function Profile() {
   const { user, checkAuth } = useAuth();
@@ -21,6 +23,7 @@ export default function Profile() {
   const [preview, setPreview] = useState(null);
   const [file, setFile] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const fileInputRef = useRef(null);
@@ -46,13 +49,28 @@ export default function Profile() {
     getBelts().then(r => setBelts(r.data.data));
   }, [user]);
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
-      setFile(selectedFile);
-      const reader = new FileReader();
-      reader.onloadend = () => setPreview(reader.result);
-      reader.readAsDataURL(selectedFile);
+      setIsCompressing(true);
+      try {
+        const compressed = await compressImage(selectedFile, {
+          maxSizeMB: 0.5,
+          maxWidthOrHeight: 800
+        });
+        setFile(compressed);
+        const reader = new FileReader();
+        reader.onloadend = () => setPreview(reader.result);
+        reader.readAsDataURL(compressed);
+      } catch (err) {
+        console.error('Compression error:', err);
+        setFile(selectedFile);
+        const reader = new FileReader();
+        reader.onloadend = () => setPreview(reader.result);
+        reader.readAsDataURL(selectedFile);
+      } finally {
+        setIsCompressing(false);
+      }
     }
   };
 
@@ -158,8 +176,9 @@ export default function Profile() {
               </div>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="absolute -right-2 -bottom-2 w-10 h-10 bg-primary-600 hover:bg-primary-700 text-white rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-110 active:scale-95 border-4 border-white">
-                <Camera className="w-5 h-5" />
+                disabled={isCompressing}
+                className="absolute -right-2 -bottom-2 w-10 h-10 bg-primary-600 hover:bg-primary-700 text-white rounded-xl shadow-lg flex items-center justify-center transition-all hover:scale-110 active:scale-95 border-4 border-white disabled:opacity-50">
+                {isCompressing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Camera className="w-5 h-5" />}
               </button>
               <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
             </div>
@@ -324,7 +343,7 @@ export default function Profile() {
                     </button>
                     <button type="submit" disabled={saving}
                       className="flex items-center gap-2 px-8 py-3.5 bg-primary-600 hover:bg-primary-500 text-white text-xs font-black uppercase tracking-[0.2em] rounded-xl transition-all shadow-xl shadow-primary-600/20 active:scale-95 disabled:opacity-50">
-                      <Save className="w-4 h-4" /> {saving ? 'Memproses...' : 'Simpan Perubahan'}
+                      <Save className="w-4 h-4" /> {saving ? 'Memproses...' : isCompressing ? 'Menyiapkan...' : 'Simpan Perubahan'}
                     </button>
                   </div>
                 </div>
