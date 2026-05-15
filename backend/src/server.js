@@ -15,6 +15,9 @@ const errorHandler = require("./middleware/errorHandler");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust proxy for rate limiting behind Nginx
+app.set('trust proxy', 1);
+
 // ============================================================
 // Security Middlewares
 // ============================================================
@@ -35,7 +38,7 @@ app.use(
 // Rate limiter — prevent brute-force / DDoS
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === "production" ? 100 : 10000, // higher limit for development
+  max: process.env.NODE_ENV === "production" ? 500 : 10000, // higher limit for production and development
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -48,7 +51,7 @@ app.use("/api/", limiter);
 // Stricter rate limit for auth routes
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: process.env.NODE_ENV === "production" ? 20 : 1000, // higher limit for development
+  max: process.env.NODE_ENV === "production" ? 100 : 1000, // higher limit for production
   standardHeaders: true,
   legacyHeaders: false,
   message: {
