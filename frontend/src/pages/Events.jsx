@@ -333,30 +333,59 @@ export default function Events() {
                     <input type="number" min={0} value={form.price} onChange={e => setForm({...form, price: e.target.value})} 
                       className="w-full px-4 py-3 bg-white dark:bg-[#0b1120] border border-gray-200 dark:border-[#2a3447] rounded-xl text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 transition-all shadow-sm" placeholder="0 untuk Gratis" />
                   </div>
-                  <div className="bg-blue-50/50 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-100/50 dark:border-blue-900/20 flex flex-col justify-center">
+                  <div className="bg-blue-50/50 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-100/50 dark:border-blue-900/20 flex flex-col justify-center relative overflow-hidden group/upload">
                     <label className="block text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2 px-1">Cover Poster</label>
-                    <div className="flex items-center gap-3">
-                      <input type="file" accept="image/*" onChange={async (e) => {
-                        const f = e.target.files[0];
-                        if (f) {
-                          setIsCompressing(true);
-                          try {
-                            const compressed = await compressImage(f, {
-                              maxSizeMB: 1,
-                              maxWidthOrHeight: 1280
-                            });
-                            setForm({...form, image: compressed});
-                          } catch (err) {
-                            setForm({...form, image: f});
-                          } finally {
-                            setIsCompressing(false);
+                    <div 
+                      onClick={() => document.getElementById('event-image-input').click()}
+                      className={`relative w-full h-32 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all overflow-hidden ${form.image ? 'border-primary-500 bg-white dark:bg-[#0b1120]' : 'border-gray-200 dark:border-[#2a3447] hover:border-primary-400 dark:hover:border-primary-500 bg-white dark:bg-[#0b1120]'}`}
+                    >
+                      {isCompressing ? (
+                        <div className="flex flex-col items-center gap-2">
+                           <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
+                           <p className="text-[10px] font-bold text-primary-600 uppercase">Mengompres...</p>
+                        </div>
+                      ) : form.image ? (
+                        <div className="w-full h-full relative">
+                           <img 
+                             src={typeof form.image === 'string' ? getImageUrl(form.image, 'events') : URL.createObjectURL(form.image)} 
+                             alt="Preview" 
+                             className="w-full h-full object-cover" 
+                           />
+                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/upload:opacity-100 transition-opacity flex items-center justify-center">
+                              <ImageIcon className="w-8 h-8 text-white" />
+                           </div>
+                        </div>
+                      ) : (
+                        <div className="text-center p-4">
+                          <Upload className="w-8 h-8 text-gray-400 mx-auto mb-1.5" />
+                          <p className="text-[10px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-tight">Pilih Gambar</p>
+                          <p className="text-[9px] text-gray-400 mt-0.5">JPG, PNG (Max 5MB)</p>
+                        </div>
+                      )}
+                      <input 
+                        id="event-image-input"
+                        type="file" 
+                        accept="image/*" 
+                        className="hidden"
+                        onChange={async (e) => {
+                          const f = e.target.files[0];
+                          if (f) {
+                            setIsCompressing(true);
+                            try {
+                              const compressed = await compressImage(f, {
+                                maxSizeMB: 1,
+                                maxWidthOrHeight: 1280
+                              });
+                              setForm({...form, image: compressed});
+                            } catch (err) {
+                              setForm({...form, image: f});
+                            } finally {
+                              setIsCompressing(false);
+                            }
                           }
-                        }
-                      }} 
-                      className="flex-1 px-2 py-1.5 bg-white dark:bg-[#0b1120] border border-gray-200 dark:border-[#2a3447] rounded-xl text-gray-900 dark:text-white text-sm cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-50 dark:file:bg-blue-900/30 file:text-blue-700 dark:file:text-blue-400 transition-colors shadow-sm" />
-                      {isCompressing && <Loader2 className="w-5 h-5 animate-spin text-primary-500" />}
+                        }} 
+                      />
                     </div>
-                    {isCompressing && <p className="text-[10px] text-primary-500 font-bold mt-1 px-1">Mengompres gambar...</p>}
                   </div>
                 </div>
               </div>
