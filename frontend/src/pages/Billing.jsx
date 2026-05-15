@@ -344,8 +344,8 @@ export default function Billing() {
 
       {/* Verify Modal */}
       {verifyModal.open && verifyModal.invoice && createPortal(
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="w-full max-w-lg bg-white dark:bg-[#1c2434] rounded-2xl shadow-2xl animate-scale-in flex flex-col max-h-[90vh] overflow-hidden border border-transparent dark:border-[#2a3447]" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-[2px] p-4 animate-fade-in">
+          <div className="w-full max-w-lg bg-white dark:bg-[#1c2434] rounded-2xl shadow-2xl animate-scale-in flex flex-col max-h-[90vh] overflow-hidden border border-transparent dark:border-[#2a3447] optimize-gpu" onClick={e => e.stopPropagation()}>
             {/* Header */}
             <div className="px-6 py-4 border-b border-gray-100 dark:border-[#2a3447] flex items-center justify-between shrink-0 bg-gray-50 dark:bg-[#0b1120]">
               <div className="flex items-center gap-3">

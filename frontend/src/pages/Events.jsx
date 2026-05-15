@@ -268,8 +268,8 @@ export default function Events() {
       
       {/* Modal Tambah/Edit Event */}
       {modal && createPortal(
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 md:p-6">
-          <div className="w-full max-w-2xl bg-white dark:bg-[#1c2434] rounded-2xl shadow-xl animate-scale-in flex flex-col max-h-[90vh] overflow-hidden border border-transparent dark:border-[#2a3447]" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-[2px] p-4 md:p-6 animate-fade-in">
+          <div className="w-full max-w-2xl bg-white dark:bg-[#1c2434] rounded-2xl shadow-xl animate-scale-in flex flex-col max-h-[90vh] overflow-hidden border border-transparent dark:border-[#2a3447] optimize-gpu" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-[#2a3447] shrink-0 bg-white dark:bg-[#1c2434]">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white uppercase tracking-wider">{editId ? 'Ubah Data Event' : 'Tambah Event Master'}</h2>
               <button onClick={() => setModal(false)} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-[#0b1120] text-gray-400 transition-colors">
@@ -401,8 +401,8 @@ export default function Events() {
 
       {/* Participant List Modal */}
       {participantModal && createPortal(
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 md:p-6" onClick={() => setParticipantModal(false)}>
-          <div className="w-full max-w-5xl bg-white dark:bg-[#1c2434] rounded-2xl shadow-xl animate-scale-in flex flex-col max-h-[90vh] overflow-hidden border border-transparent dark:border-[#2a3447]" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-[2px] p-4 md:p-6 animate-fade-in" onClick={() => setParticipantModal(false)}>
+          <div className="w-full max-w-5xl bg-white dark:bg-[#1c2434] rounded-2xl shadow-xl animate-scale-in flex flex-col max-h-[90vh] overflow-hidden border border-transparent dark:border-[#2a3447] optimize-gpu" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-[#2a3447] shrink-0 bg-white dark:bg-[#1c2434]">
               <div className="flex items-center gap-3">
                  <div className="w-10 h-10 bg-green-50 dark:bg-green-900/20 rounded-xl flex items-center justify-center text-green-600 dark:text-green-400">
